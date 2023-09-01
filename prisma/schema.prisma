@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id          Int           @id @default(autoincrement())
+  email       String        @unique @db.VarChar(255)
+  password    String        @db.VarChar(255)
+  credentials Credentials[]
+  notes       Notes[]
+  card        Cards[]
+  session     Session[]
+
+  @@map("users")
+}
+
+model Credentials {
+  id       Int    @id @default(autoincrement())
+  title    String @unique @db.VarChar(255)
+  url      String @db.VarChar(255)
+  username String @db.VarChar(255)
+  password String @db.VarChar(255)
+  userId   Int
+  user     Users  @relation(fields: [userId], references: [id])
+
+  @@map("credentials")
+}
+
+model Notes {
+  id     Int    @id @default(autoincrement())
+  title  String @db.VarChar(255)
+  text   String @db.VarChar(255)
+  userId Int
+  user   Users  @relation(fields: [userId], references: [id])
+
+  @@map("notes")
+}
+
+model Cards {
+  id              Int    @id @default(autoincrement())
+  cardNumber      String @db.VarChar(16)
+  cardHolder      String @db.VarChar(255)
+  cvc             String @db.VarChar(3)
+  expirationMonth Int    @db.Integer
+  expirationYear  Int    @db.Integer
+  cardType        String @db.VarChar(255)
+  userId          Int
+  user            Users  @relation(fields: [userId], references: [id])
+
+  @@map("card")
+}
+
+model Session {
+  id     Int    @id @default(autoincrement())
+  token  String @db.VarChar(255)
+  userId Int    @db.Integer
+  user   Users  @relation(fields: [userId], references: [id])
+
+  @@map("session")
+}
